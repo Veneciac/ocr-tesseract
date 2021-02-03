@@ -20,7 +20,7 @@ function App() {
   const [image, setimage] = useState<ImageLike | null>('');
   const [ocrData, setOcrData] = useState<Page| null>(null);
   const [highlightBoxes, setHighlightBoxes] = useState<OcrWord[]| null>([]);
-  
+
   const [input, setInput] = useState<string>('');
   const [date, setDate] = useState<string>('');
 
@@ -40,9 +40,7 @@ function App() {
   // effect to do OCR
   useEffect(() => {
     if (worker && image) {
-      console.log('ini')
       recognize(image, worker).then(data => {
-        console.log('result', data);
         setOcrData(data);
       });
     }
@@ -99,7 +97,6 @@ function App() {
       birthdate: date
     });
     if (patientBox.length !== 0) {
-      console.log('result====', patientBox);
       setHighlightBoxes(patientBox);
     }
   }
@@ -121,7 +118,7 @@ function App() {
     <div className="App">
       <h1 className='title'>Tesseract Ocr</h1>
       <p className='status'>{status} {progress}</p>
- 
+
       {
         ocrData && <Row justify='center' align='middle'>
           <Input style={{
@@ -132,7 +129,7 @@ function App() {
           <button onClick={onSearch} className='btn-search'>
             Search
           </button>
-        </Row> 
+        </Row>
       }
 
       {
@@ -140,11 +137,11 @@ function App() {
           justifyContent: 'center',
           display: 'flex',
           marginTop: '20px'
-        }}>   
+        }}>
           <DrawAnnotations images={ image } highlightBoxes={ highlightBoxes } />
         </div>
       }
-      
+
       <div className='btn-container'>
         <button onClick={handleClickTakeScreenshot} className='btn-capture'>
           Capture Image
@@ -165,11 +162,11 @@ function App() {
                 {ocrData.text}
               </p>
             </div>
-           
+
             <h2 className='title'>Words</h2>
             <div className='text-container'>
               <p>
-                {ocrData.words.map(word =>  <Tag>{word.text}</Tag>)}
+                {ocrData.words.map((word, i) =>  <Tag key={i}>{word.text}</Tag>)}
               </p>
             </div>
           </div>
