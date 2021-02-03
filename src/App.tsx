@@ -56,6 +56,9 @@ function App() {
   };
 
   const handleClickTakeScreenshot = async() => {
+    if (progress !== 0) {
+      await handleTerminate()
+    }
     // request share screen recording in the device
     const mediaDevices: any = navigator.mediaDevices;
     if (mediaDevices?.getDisplayMedia) {
@@ -76,6 +79,9 @@ function App() {
   };
 
   const handleChangeUpload = async(info) => {
+    if (progress !== 0) {
+      await handleTerminate()
+    }
     const file= info.file;
     // convert File to ImageBitmap
     const bitmap = await createImageBitmap(file);
@@ -97,6 +103,19 @@ function App() {
       setHighlightBoxes(patientBox);
     }
   }
+
+  const handleTerminate = async() => {
+    if (worker) {
+      await worker.terminate();
+    }
+    setWorker(null);
+    setOcrData(null);
+    setCaptureBitmap(null);
+    setimage(null)
+    setOcrStatus('')
+    setOcrProgress(0)
+    setHighlightBoxes([])
+  };
 
   return (
     <div className="App">
