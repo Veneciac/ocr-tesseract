@@ -2,10 +2,10 @@ import React, { useRef } from "react";
 import { Stage, Layer, Image, Rect} from "react-konva";
 import useImage from 'use-image'
 
-const DrawAnnotations = ( props ) => {
+const DrawAnnotations = ( props: any ) => {
   const { images, highlightBoxes } = props
   const [ image ] = useImage( images )
-  const imgRef = useRef()
+  const imgRef = useRef<any>()
 
   return (
     <div>

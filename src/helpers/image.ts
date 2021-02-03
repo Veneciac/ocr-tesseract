@@ -1,4 +1,4 @@
-const toDataUrl = (bitmap) => {
+const toDataUrl = (bitmap: ImageBitmap) => {
   const canvas = document.createElement('canvas');
   canvas.width = bitmap.width;
   canvas.height = bitmap.height;

@@ -1,23 +1,28 @@
 import React, {useState, useEffect} from 'react'
 import { Upload, Tag, Input, DatePicker, Row } from 'antd';
 import {toDataUrl} from './helpers/image';
-import {recognize, setWorker as ocrSetWorker, getUserData} from './helpers/ocr'
+import {
+  Worker,
+  ImageLike,
+  Page
+} from 'tesseract.js';
+import {recognize, setWorker as ocrSetWorker, getUserData, OcrWord} from './helpers/ocr'
 import DrawAnnotations from './DrawAnnotations';
 
 import 'antd/dist/antd.css';
 import './App.css';
 
 function App() {
-  const [captureBitmap, setCaptureBitmap] = useState(null);
-  const [status, setOcrStatus] = useState('');
-  const [progress, setOcrProgress] = useState('');
-  const [worker, setWorker] = useState(null);
-  const [image, setimage] = useState('');
-  const [ocrData, setOcrData] = useState(null);
-  const [highlightBoxes, setHighlightBoxes] = useState([]);
+  const [captureBitmap, setCaptureBitmap] = useState<ImageBitmap | null>(null);
+  const [status, setOcrStatus] = useState<string>('');
+  const [progress, setOcrProgress] = useState<number>(0);
+  const [worker, setWorker] = useState<null| Worker>(null);
+  const [image, setimage] = useState<ImageLike | null>('');
+  const [ocrData, setOcrData] = useState<Page| null>(null);
+  const [highlightBoxes, setHighlightBoxes] = useState<OcrWord[]| null>([]);
   
-  const [input, setInput] = useState('');
-  const [date, setDate] = useState('');
+  const [input, setInput] = useState<string>('');
+  const [date, setDate] = useState<string>('');
 
   useEffect(() => {
     if (captureBitmap) {
@@ -52,7 +57,7 @@ function App() {
 
   const handleClickTakeScreenshot = async() => {
     // request share screen recording in the device
-    const mediaDevices = navigator.mediaDevices;
+    const mediaDevices: any = navigator.mediaDevices;
     if (mediaDevices?.getDisplayMedia) {
       const stream = await mediaDevices.getDisplayMedia({ video: { mediaSource: 'screen' } });
       // get correct video track
@@ -83,7 +88,7 @@ function App() {
   }
 
   const onSearch = () => {
-    const patientBox = getUserData(ocrData.words, {
+    const patientBox = getUserData(ocrData?.words, {
       name: input,
       birthdate: date
     });

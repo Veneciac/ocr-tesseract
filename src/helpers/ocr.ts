@@ -1,5 +1,115 @@
-import Tesseract from 'tesseract.js';
+import Tesseract, { Word, Worker } from 'tesseract.js';
 import moment from 'moment';
+
+// add id to ocr words
+export interface OcrWord extends Word {
+  id: number;
+  x: number;
+  y: number;
+  x1: number;
+  y1: number;
+}
+
+type Patient = {
+  birthdate: string;
+  name: string;
+}
+export interface Position {
+  x: number;
+  y: number;
+  x1: number;
+  y1: number;
+  id: number[];
+  key: number;
+}
+
+const format = [
+  
+  // WITH SLASH
+  // MONTH DATE YEAR
+  'M/D/YYYY',
+  'M/D/YY',
+  'MM/D/YYYY',
+  'MM/D/YY',
+  'M/DD/YYYY',
+  'M/DD/YY',
+  'MM/DD/YYYY',
+  'MM/DD/YY',
+
+  // DATE MONTH YEAR
+  'D/M/YYYY',
+  'D/M/YY',
+  'DD/M/YYYY',
+  'DD/M/YY',
+  'D/MM/YYYY',
+  'D/MM/YY',
+  'DD/MM/YYYY',
+  'DD/MM/YY',
+
+  // YEAR MONTH DATE
+  'YYYY/M/D',
+  'YY/M/D',
+  'YYYY/MM/D',
+  'YY/MM/D',
+  'YYYY/M/DD',
+  'YY/M/DD',
+  'YYYY/MM/DD',
+  'YY/MM/DD',
+
+  // YEAR DATE MONTH
+  'YYYY/D/M',
+  'YY/D/M',
+  'YYYY/DD/M',
+  'YY/DD/M',
+  'YYYY/D/MM',
+  'YY/D/MM',
+  'YYYY/DD/MM',
+  'YY/DD/MM',
+
+  // / WITH DASH
+  // MONTH DATE YEAR
+  'M-D-YYYY',
+  'M-D-YY',
+  'MM-D-YYYY',
+  'MM-D-YY',
+  'M-DD-YYYY',
+  'M-DD-YY',
+  'MM-DD-YYYY',
+  'MM-DD-YY',
+  
+  // DATE MONTH YEAR
+  'D-M-YYYY',
+  'D-M-YY',
+  'DD-M-YYYY',
+  'DD-M-YY',
+  'D-MM-YYYY',
+  'D-MM-YY',
+  'DD-MM-YYYY',
+  'DD-MM-YY',
+  
+  // YEAR MONTH DATE
+  'YYYY-M-D',
+  'YY-M-D',
+  'YYYY-MM-D',
+  'YY-MM-D',
+  'YYYY-M-DD',
+  'YY-M-DD',
+  'YYYY-MM-DD',
+  'YY-MM-DD',
+  
+  // YEAR DATE MONTH
+  'YYYY-D-M',
+  'YY-D-M',
+  'YYYY-DD-M',
+  'YY-DD-M',
+  'YYYY-D-MM',
+  'YY-D-MM',
+  'YYYY-DD-MM',
+  'YY-DD-MM',
+
+  'MMM-DD-YYYY',
+
+];
 
 // date format with space
 const formatWithSpace = [
@@ -90,8 +200,8 @@ const formatWithSpace = [
 ];
 
 // get patient data from ocr
-const getUserData = (arr, patient) => {
-  let ocrWordResult = [];
+const getUserData = (arr: any, patient: Patient) => {
+  let ocrWordResult: any = [];
   const dob = patient.birthdate;
   const socialSecurityNumberRegex = new RegExp('^(?!666|000|9\\d{2})\\d{3}-(?!00)\\d{2}-(?!0{4})\\d{4}$');
 
@@ -125,8 +235,8 @@ const getUserData = (arr, patient) => {
 };
 
 // get date from ocr
-const getDate = (arr, dob) => {
-  const result = [];
+const getDate = (arr: OcrWord[], dob: string) => {
+  const result: OcrWord[] = [];
   const birthDate = new Date(dob);
 
   arr.forEach(word => {
@@ -146,9 +256,9 @@ const getDate = (arr, dob) => {
 };
 
 // get social security number from ocr
-const getSocialSecurityNumber = (arr) => {
+const getSocialSecurityNumber = (arr: OcrWord[]) => {
   const regex = new RegExp('^(?!666|000|9\\d{2})\\d{3}-(?!00)\\d{2}-(?!0{4})\\d{4}$');
-  const result = [];
+  const result: OcrWord[] = [];
 
   arr.forEach(word => {
     if (word.text.length === 10 && word.text.includes('-') && regex.test(word.text)) {
@@ -159,7 +269,7 @@ const getSocialSecurityNumber = (arr) => {
 };
 
 // set Tesseract worker
-const setWorker = (setWorker, setStatus, setProgress) => {
+const setWorker = (setWorker: (worker: any) => void, setStatus?: (key: string) => void, setProgress?: (key: number) => void,) => {
   const { createWorker } = Tesseract;
 
   // set worker from tesseract to callback
@@ -179,7 +289,7 @@ const setWorker = (setWorker, setStatus, setProgress) => {
 };
 
 // Recognize function from tesseract
-const recognize = async(image, worker, lang) => {
+const recognize: any = async(image: any, worker: Worker, lang?: string) => {
   try {
     // set lang if none
     if (!lang) {
@@ -193,7 +303,7 @@ const recognize = async(image, worker, lang) => {
     const { data } = await worker.recognize(image);
 
     // remap data to give each words an id
-    const ocrWords = data.words.map((word, i) => {
+    const ocrWords = data.words.map((word: Word, i: number) => {
       return {
         ...word,
         id: i
@@ -216,28 +326,28 @@ const recognize = async(image, worker, lang) => {
 
 // Get ocr coordinates from word / sentence
 // input , ocrwords is wordlist from ocr recognize function
-const getBoxes = (input, ocrWords) => {
+const getBoxes = (input: string, ocrWords: any) => {
   // make input into an array / words splitted by spaces
   const arrInput = input.split(' ').filter(word => word !== '');
 
-  const ocrWordList = [];
+  const ocrWordList: any = [];
 
   // map input array
   arrInput.map(inputText => {
     // map each words to find word that match input
-    ocrWords.forEach((word) => {
+    ocrWords.forEach((word: Word) => {
       if (word.text.toLowerCase() === inputText.toLowerCase()) ocrWordList.push(word);
     });
   });
 
   // sort by id so words will be sorted by line and from the left
-  ocrWordList.sort(function(a, b) {
+  ocrWordList.sort(function(a: OcrWord, b: OcrWord) {
     return a.id - b.id;
   });
   
-  let OcrWordsResult = [];
+  let OcrWordsResult: any = [];
   
-  ocrWordList.forEach((currentOcrWord, i) => {
+  ocrWordList.forEach((currentOcrWord: OcrWord, i) => {
     // initialize bbox
     const bbox = {
       ...currentOcrWord,
