@@ -56,7 +56,7 @@ function App() {
   };
 
   const handleClickTakeScreenshot = async() => {
-    if (progress !== 0) {
+    if (captureBitmap) {
       await handleTerminate()
     }
     // request share screen recording in the device
@@ -79,7 +79,7 @@ function App() {
   };
 
   const handleChangeUpload = async(info) => {
-    if (progress !== 0) {
+    if (captureBitmap) {
       await handleTerminate()
     }
     const file= info.file;
